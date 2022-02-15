@@ -1,15 +1,11 @@
 import sys
 import os
-import pandas
-import numpy as np
 
 # Append parent dir to path
 sys.path.append("..")
 
 import pascal
 from pascal.data_loader import DataSet
-from pascal.preprocessing import equal_width_discretization, standardize, equal_fequency_discretization
-from pascal.validation import KFoldCrossValidation
 
 DATASETS_DIR = os.getenv("PASCAL_DATASETS_DIR")
 RANDOM_SEED = 454352534
@@ -36,13 +32,13 @@ def run_abalone_tests(data_file):
     
     print()
     print("Equal width binning on the `Length` variable")
-    binned_data, bins = pascal.preprocessing.equal_width_discretization(ds, "Length", 5)
+    binned_data, bins = pascal.equal_width_discretization(ds, "Length", 5)
     pretty_print_bined_data(binned_data, bins)
     
     print()
     print("Standardizing all variables except `Sex` and `Rings`")
     cols = ["Length", "Diameter", "Height", "Whole weight", "Shucked weight", "Viscera weight", "Shell weight"]
-    data_std = pascal.preprocessing.standardize(ds.data, cols=cols)
+    data_std = pascal.standardize(ds.data, cols=cols)
     print(data_std.head(5))
     
     print()
@@ -55,13 +51,13 @@ def run_abalone_tests(data_file):
     
     print()
     print("Spitting data into 5-Folds")
-    k_fold = pascal.validation.KFoldCrossValidation(ds)
+    k_fold = pascal.KFoldCrossValidation(ds)
     for i, (train, test) in enumerate(k_fold.split(5)):
         print(f"Fold{i+1}: Test data indices {test[0].head(1).index.item()}-{test[0].tail(1).index.item()}")
     
     print()
     print("Using the AverageRegressor to predict `Rings`")
-    avg_reg = pascal.regression.AverageValueRegressor()
+    avg_reg = pascal.AverageValueRegressor()
     avg_reg.fit(ds)
     pred = avg_reg.predict(ds)
     new_data = ds.data.copy()
